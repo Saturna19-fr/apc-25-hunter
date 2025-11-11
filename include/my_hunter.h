@@ -7,6 +7,8 @@
 
 #ifndef MY_HUNTER_
     #define MY_HUNTER_
-
+    #define GAME_AUTHOR "thibault.morez@epitech.eu"
+    #define GAME_NAME "MyHunter"
+    #define GAME_DESCRIPTION "This game is in progress."
 
 #endif /* !MY_HUNTER_ */

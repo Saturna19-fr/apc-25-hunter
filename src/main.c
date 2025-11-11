@@ -6,8 +6,10 @@
 */
 
 #include <SFML/Graphics.h>
+#include <SFML/Audio.h>
 #include <stdlib.h>
 #include "../include/my_hunter.h"
+#include "../include/my.h"
 #include <stddef.h>
 
 sfRenderWindow *create_window(int x, int y, char *title)
@@ -29,12 +31,23 @@ void manage_events(sfRenderWindow *window, sfEvent *event)
     }
 }
 
-int main(void)
+int display_help(void)
 {
-    sfRenderWindow *window = create_window(800, 600, "Test");
+    my_printf("%s [%s]\n", GAME_NAME, GAME_AUTHOR);
+    my_printf("%s\n", GAME_DESCRIPTION);
+    return 0;
+}
+
+int main(int argc, char **argv)
+{
+    sfRenderWindow *window;
     sfEvent event;
     sfUint8 *pixels = malloc((800 * 600 * 32) / 8);
 
+    if (argc == 2 && my_strlen(argv[1]) == 2 && argv[1][0] == '-' &&
+        argv[1][1] == 'h')
+        return display_help();
+    window = create_window(800, 600, "Test");
     if (window == NULL)
         return 84;
     if (pixels == NULL)
@@ -44,4 +57,5 @@ int main(void)
         sfRenderWindow_display(window);
         sfRenderWindow_clear(window, sfBlack);
     }
+    sfRenderWindow_destroy(window);
 }
