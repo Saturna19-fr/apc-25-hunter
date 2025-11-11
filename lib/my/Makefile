@@ -38,7 +38,15 @@ SRC	 = 	my_compute_power_rec.c \
 		my_strstr.c \
 		my_str_to_word_array.c \
 		my_strupcase.c \
-		my_swap.c
+		my_swap.c \
+		my_printf.c \
+		flag_c.c \
+		flag_s.c \
+		flag_i_d.c \
+		flag_o.c \
+		flag_x_x.c \
+		flag_percent.c \
+		flag_u.c
 
 
 OBJ = $(SRC:.c=.o)

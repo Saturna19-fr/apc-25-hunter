@@ -14,7 +14,7 @@
     #include <stdbool.h>
     #include <stdio.h>
     #include <stdlib.h>
-    #define UNUSED(x) (void)x
+    #define UNUSED(x) (void) x
 int my_compute_power_rec(int nb, int p);
 int my_compute_square_root(int nb);
 int my_is_prime(int nb);
@@ -52,4 +52,40 @@ int count_words_valid(char *str);
 int parse_all_chars(char **tableau, char *str);
 void populate_array(char **array, int index, char c);
 
-#endif //_MY_H
+typedef struct functions_table {
+    char flag;
+    int (*fptr)(va_list);
+} fct_table_t;
+
+int my_printf(char *str, ...);
+
+
+int manage_flag_s(va_list args);
+int manage_flag_c(va_list args);
+int manage_flag_i_d(va_list args);
+int manage_flag_x_upper(va_list args);
+int manage_flag_x(va_list args);
+int manage_flag_o(va_list args);
+int manage_flag_percent(va_list args);
+int manage_flag_u(va_list args);
+
+void write_to_stderr(char c);
+void string_to_stderr(char *str);
+
+char convert_to_lowercase(char c);
+int convert_to_hex(int nb, int to_lowercase);
+
+static const fct_table_t fcts[] = {
+    {'c', &manage_flag_c},
+    {'s', &manage_flag_s},
+    {'d', &manage_flag_i_d},
+    {'i', &manage_flag_i_d},
+    {'o', &manage_flag_o},
+    {'x', &manage_flag_x},
+    {'X', &manage_flag_x_upper},
+    {'%', &manage_flag_percent},
+    {'u', &manage_flag_u},
+    {'\0', NULL}
+};
+
+#endif
