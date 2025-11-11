@@ -1,0 +1,8 @@
+./lib/libmy.a:1: MAJOR:C-O1
+./lib/my/libmy.a:1: MAJOR:C-O1
+./lib/my/tests/tests.c:1: MINOR:C-G1
+./lib/my/tests/tests.c:6: MAJOR:C-H1
+./lib/my/tests/tests.c:8: MINOR:C-F2
+./lib/my/tests/tests.c:17: MINOR:C-F2
+./lib/my/tests/tests.c:26: MINOR:C-F2
+./my_hunter:1: MAJOR:C-O1
