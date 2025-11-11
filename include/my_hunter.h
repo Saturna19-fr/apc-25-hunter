@@ -11,6 +11,8 @@
     #define GAME_AUTHOR "thibault.morez@epitech.eu"
     #define GAME_NAME "MyHunter"
     #define GAME_DESCRIPTION "This game is in progress."
+    #define MAX_FRAMERATE 60
+    #define _DEBUG 1
 
 typedef struct frames_keys_s {
     bool z;

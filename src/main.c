@@ -12,7 +12,7 @@
 #include "../include/my.h"
 #include <stddef.h>
 
-sfRenderWindow *create_window(int x, int y, char *title)
+static sfRenderWindow *create_window(int x, int y, char *title)
 {
     sfRenderWindow *window;
     sfVideoMode mode = {x, y, 32};
@@ -23,7 +23,7 @@ sfRenderWindow *create_window(int x, int y, char *title)
     return NULL;
 }
 
-void handlekeys(sfEvent *event, frames_keys_t *keys)
+static void handlekeys(sfEvent *event, frames_keys_t *keys)
 {
     switch (event->key.code) {
         case sfKeyZ:
@@ -43,6 +43,13 @@ void handlekeys(sfEvent *event, frames_keys_t *keys)
     }
 }
 
+void handle_resize(sfRenderWindow *window)
+{
+    sfVector2u min_size = {800, 600};
+
+    sfRenderWindow_setSize(window, min_size);
+}
+
 void manage_events(sfRenderWindow *window, sfEvent *event, frames_keys_t *keys)
 {
     while (sfRenderWindow_pollEvent(window, event)) {
@@ -50,10 +57,24 @@ void manage_events(sfRenderWindow *window, sfEvent *event, frames_keys_t *keys)
             sfRenderWindow_close(window);
         if ((*event).type == sfEvtKeyPressed)
             handlekeys(event, keys);
+        if ((*event).type == sfEvtResized)
+            handle_resize(window);
     }
 }
 
-int display_help(void)
+static void display_background(sfRenderWindow *window, char *image_path)
+{
+    sfTexture *texture = sfTexture_createFromFile(image_path, NULL);
+    sfSprite *background;
+
+    if (!texture && _DEBUG)
+        my_printf("An error occured while loading file %s.\n", image_path);
+    background = sfSprite_create();
+    sfSprite_setTexture(background, texture, sfTrue);
+    sfRenderWindow_drawSprite(window, background, NULL);
+}
+
+static int display_help(void)
 {
     my_printf("%s [%s]\n", GAME_NAME, GAME_AUTHOR);
     my_printf("%s\n", GAME_DESCRIPTION);
@@ -64,7 +85,6 @@ int main(int argc, char **argv)
 {
     sfRenderWindow *window;
     sfEvent event;
-    sfUint8 *pixels = malloc((800 * 600 * 32) / 8);
     frames_keys_t keys;
 
     if (argc == 2 && my_strlen(argv[1]) == 2 && argv[1][0] == '-' &&
@@ -73,10 +93,10 @@ int main(int argc, char **argv)
     window = create_window(800, 600, "Test");
     if (window == NULL)
         return 84;
-    if (pixels == NULL)
-        return 84;
+    sfRenderWindow_setFramerateLimit(window, MAX_FRAMERATE);
     while (sfRenderWindow_isOpen(window)) {
         manage_events(window, &event, &keys);
+        display_background(window, "images/background.jpg");
         sfRenderWindow_display(window);
         sfRenderWindow_clear(window, sfBlack);
     }
