@@ -23,11 +23,33 @@ sfRenderWindow *create_window(int x, int y, char *title)
     return NULL;
 }
 
-void manage_events(sfRenderWindow *window, sfEvent *event)
+void handlekeys(sfEvent *event, frames_keys_t *keys)
+{
+    switch (event->key.code) {
+        case sfKeyZ:
+            keys->z = true;
+            break;
+        case sfKeyQ:
+            keys->q = true;
+            break;
+        case sfKeyS:
+            keys->s = true;
+            break;
+        case sfKeyD:
+            keys->d = true;
+            break;
+        default:
+            break;
+    }
+}
+
+void manage_events(sfRenderWindow *window, sfEvent *event, frames_keys_t *keys)
 {
     while (sfRenderWindow_pollEvent(window, event)) {
         if ((*event).type == sfEvtClosed)
             sfRenderWindow_close(window);
+        if ((*event).type == sfEvtKeyPressed)
+            handlekeys(event, keys);
     }
 }
 
@@ -43,6 +65,7 @@ int main(int argc, char **argv)
     sfRenderWindow *window;
     sfEvent event;
     sfUint8 *pixels = malloc((800 * 600 * 32) / 8);
+    frames_keys_t keys;
 
     if (argc == 2 && my_strlen(argv[1]) == 2 && argv[1][0] == '-' &&
         argv[1][1] == 'h')
@@ -53,7 +76,7 @@ int main(int argc, char **argv)
     if (pixels == NULL)
         return 84;
     while (sfRenderWindow_isOpen(window)) {
-        manage_events(window, &event);
+        manage_events(window, &event, &keys);
         sfRenderWindow_display(window);
         sfRenderWindow_clear(window, sfBlack);
     }
