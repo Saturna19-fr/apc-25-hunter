@@ -43,7 +43,7 @@ static void handlekeys(sfEvent *event, frames_keys_t *keys)
     }
 }
 
-void handle_resize(sfRenderWindow *window)
+static void handle_resize(sfRenderWindow *window)
 {
     sfVector2u size = sfRenderWindow_getSize(window);
     bool edited = false;
@@ -75,6 +75,7 @@ void manage_events(sfRenderWindow *window, sfEvent *event, frames_keys_t *keys)
 
 static void display_background(assets_t *assets)
 {
+    printf("Called !\n");
     const sfView *view = sfRenderWindow_getView(assets->window);
 
     sfRectangleShape_setSize(assets->background.rectangle,
@@ -101,15 +102,22 @@ static int display_help(void)
 //     sfVector2f size;
 //     float angle;
 // } content_t;
-void init(assets_t *assets)
+static void init(assets_t *assets)
 {
     assets->window = create_window(800, 600, "My Hunter");
     assets->background.rectangle = sfRectangleShape_create();
     assets->background.texture = sfTexture_createFromFile(
         "images/background.jpg", NULL);
+    assets->play_button.text = sfText_create();
+    sfText_setString(assets->play_button.text, "Play");
+    assets->play_button.color = sfColor_fromRGBA(
+        255, 255, 255, 255);
+    assets->play_button.rect.rectangle = sfRectangleShape_create();
+    assets->play_button.rect.size.x = 200;
+    assets->play_button.rect.size.y = 60;
 }
 
-void cleanup(assets_t *assets)
+static void cleanup(assets_t *assets)
 {
     sfRectangleShape_destroy(assets->background.rectangle);
     sfTexture_destroy(assets->background.texture);
@@ -117,21 +125,38 @@ void cleanup(assets_t *assets)
     sfRenderWindow_setFramerateLimit(assets->window, MAX_FRAMERATE);
 }
 
+void display_menu(assets_t *assets)
+{
+    sfRenderWindow_drawRectangleShape(assets->window,
+        assets->play_button.rect.rectangle, NULL);
+}
+
+void render_view(int current_view, assets_t *assets)
+{
+    if (current_view == 0) {
+        display_menu(assets);
+    }
+}
+
 int main(int argc, char **argv)
 {
     sfEvent event;
     frames_keys_t keys;
     assets_t assets;
+    int current_view = 0;
 
     if (argc == 2 && my_strlen(argv[1]) == 2 && argv[1][0] == '-' &&
         argv[1][1] == 'h')
         return display_help();
     init(&assets);
+    printf("Init \n");
     if (assets.window == NULL)
         return 84;
     while (sfRenderWindow_isOpen(assets.window)) {
+        printf("Turn\n");
         manage_events(assets.window, &event, &keys);
         display_background(&assets);
+        render_view(current_view, &assets);
         sfRenderWindow_display(assets.window);
     }
     cleanup(&assets);

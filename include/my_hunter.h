@@ -14,6 +14,7 @@
     #define MAX_FRAMERATE 60
     #define _DEBUG 1
 
+
 typedef struct frames_keys_s {
     bool z;
     bool q;
@@ -28,9 +29,17 @@ typedef struct content_s {
     float angle;
 } content_t;
 
+typedef struct button_s {
+    sfText *text;
+    sfColor color;
+    content_t rect;
+} button_t;
+
 typedef struct assets_s {
+    sfFont *font;
     sfRenderWindow *window;
     content_t background;
+    button_t play_button;
     float heartbeat;
 } assets_t;
 

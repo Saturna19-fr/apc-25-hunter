@@ -9,7 +9,7 @@ NAME = 	my_hunter
 
 SRCS = 	src/main.c
 
-CC = epiclang
+CC = clang
 
 CFLAGS = -Werror -Wall -Wextra
 
