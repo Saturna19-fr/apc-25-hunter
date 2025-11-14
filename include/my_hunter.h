@@ -20,4 +20,18 @@ typedef struct frames_keys_s {
     bool s;
     bool d;
 } frames_keys_t;
+
+typedef struct content_s {
+    sfTexture *texture;
+    sfRectangleShape *rectangle;
+    sfVector2f size;
+    float angle;
+} content_t;
+
+typedef struct assets_s {
+    sfRenderWindow *window;
+    content_t background;
+    float heartbeat;
+} assets_t;
+
 #endif /* !MY_HUNTER_ */

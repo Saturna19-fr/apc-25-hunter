@@ -17,7 +17,7 @@ static sfRenderWindow *create_window(int x, int y, char *title)
     sfRenderWindow *window;
     sfVideoMode mode = {x, y, 32};
 
-    window = sfRenderWindow_create(mode, title, sfResize | sfClose, NULL);
+    window = sfRenderWindow_create(mode, title, sfClose | sfResize, NULL);
     if (window)
         return window;
     return NULL;
@@ -45,9 +45,20 @@ static void handlekeys(sfEvent *event, frames_keys_t *keys)
 
 void handle_resize(sfRenderWindow *window)
 {
-    sfVector2u min_size = {800, 600};
+    sfVector2u size = sfRenderWindow_getSize(window);
+    bool edited = false;
 
-    sfRenderWindow_setSize(window, min_size);
+    if (size.x < 800) {
+        size.x = 800;
+        edited = true;
+    }
+    if (size.y < 600) {
+        size.y = 600;
+        edited = true;
+    }
+    if (edited) {
+        sfRenderWindow_setSize(window, size);
+    }
 }
 
 void manage_events(sfRenderWindow *window, sfEvent *event, frames_keys_t *keys)
@@ -62,16 +73,18 @@ void manage_events(sfRenderWindow *window, sfEvent *event, frames_keys_t *keys)
     }
 }
 
-static void display_background(sfRenderWindow *window, char *image_path)
+static void display_background(assets_t *assets)
 {
-    sfTexture *texture = sfTexture_createFromFile(image_path, NULL);
-    sfSprite *background;
+    const sfView *view = sfRenderWindow_getView(assets->window);
 
-    if (!texture && _DEBUG)
-        my_printf("An error occured while loading file %s.\n", image_path);
-    background = sfSprite_create();
-    sfSprite_setTexture(background, texture, sfTrue);
-    sfRenderWindow_drawSprite(window, background, NULL);
+    sfRectangleShape_setSize(assets->background.rectangle,
+        sfView_getSize(view));
+    if (!assets->background.texture && _DEBUG)
+        my_printf("[WARN] Background texture not loaded.\n");
+    sfRectangleShape_setTexture(assets->background.rectangle,
+        assets->background.texture, sfTrue);
+    sfRenderWindow_drawRectangleShape(assets->window,
+        assets->background.rectangle, NULL);
 }
 
 static int display_help(void)
@@ -81,24 +94,48 @@ static int display_help(void)
     return 0;
 }
 
+// typedef struct content_s {
+//     sfTexture *texture;
+//     sfRectangleShape *rectangle;
+//     sfVector2f position;
+//     sfVector2f size;
+//     float angle;
+// } content_t;
+void init(assets_t *assets)
+{
+    assets->window = create_window(800, 600, "My Hunter");
+    assets->background.rectangle = sfRectangleShape_create();
+    assets->background.texture = sfTexture_createFromFile(
+        "images/background.jpg", NULL);
+}
+
+void cleanup(assets_t *assets)
+{
+    sfRectangleShape_destroy(assets->background.rectangle);
+    sfTexture_destroy(assets->background.texture);
+    sfRenderWindow_destroy(assets->window);
+    sfRenderWindow_setFramerateLimit(assets->window, MAX_FRAMERATE);
+}
+
 int main(int argc, char **argv)
 {
-    sfRenderWindow *window;
     sfEvent event;
     frames_keys_t keys;
+    assets_t assets;
 
     if (argc == 2 && my_strlen(argv[1]) == 2 && argv[1][0] == '-' &&
         argv[1][1] == 'h')
         return display_help();
-    window = create_window(800, 600, "Test");
-    if (window == NULL)
+    init(&assets);
+    if (assets.window == NULL)
         return 84;
-    sfRenderWindow_setFramerateLimit(window, MAX_FRAMERATE);
-    while (sfRenderWindow_isOpen(window)) {
-        manage_events(window, &event, &keys);
-        display_background(window, "images/background.jpg");
-        sfRenderWindow_display(window);
-        sfRenderWindow_clear(window, sfBlack);
+    while (sfRenderWindow_isOpen(assets.window)) {
+        manage_events(assets.window, &event, &keys);
+        display_background(&assets);
+        sfRenderWindow_display(assets.window);
     }
-    sfRenderWindow_destroy(window);
+    cleanup(&assets);
+    return 0;
 }
+
+// sfRenderWindow_clear(assets.window, sfBlack);
