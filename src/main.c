@@ -5,137 +5,44 @@
 ** main
 */
 
-#include <SFML/Graphics.h>
-#include <SFML/Audio.h>
-#include <stdlib.h>
 #include "../include/my_hunter.h"
-#include "../include/my.h"
-#include <stddef.h>
 
-static sfRenderWindow *create_window(int x, int y, char *title)
+void init(assets_t *assets)
 {
-    sfRenderWindow *window;
-    sfVideoMode mode = {x, y, 32};
-
-    window = sfRenderWindow_create(mode, title, sfClose | sfResize, NULL);
-    if (window)
-        return window;
-    return NULL;
-}
-
-static void handlekeys(sfEvent *event, frames_keys_t *keys)
-{
-    switch (event->key.code) {
-        case sfKeyZ:
-            keys->z = true;
-            break;
-        case sfKeyQ:
-            keys->q = true;
-            break;
-        case sfKeyS:
-            keys->s = true;
-            break;
-        case sfKeyD:
-            keys->d = true;
-            break;
-        default:
-            break;
-    }
-}
-
-static void handle_resize(sfRenderWindow *window)
-{
-    sfVector2u size = sfRenderWindow_getSize(window);
-    bool edited = false;
-
-    if (size.x < 800) {
-        size.x = 800;
-        edited = true;
-    }
-    if (size.y < 600) {
-        size.y = 600;
-        edited = true;
-    }
-    if (edited) {
-        sfRenderWindow_setSize(window, size);
-    }
-}
-
-void manage_events(sfRenderWindow *window, sfEvent *event, frames_keys_t *keys)
-{
-    while (sfRenderWindow_pollEvent(window, event)) {
-        if ((*event).type == sfEvtClosed)
-            sfRenderWindow_close(window);
-        if ((*event).type == sfEvtKeyPressed)
-            handlekeys(event, keys);
-        if ((*event).type == sfEvtResized)
-            handle_resize(window);
-    }
-}
-
-static void display_background(assets_t *assets)
-{
-    printf("Called !\n");
-    const sfView *view = sfRenderWindow_getView(assets->window);
-
-    sfRectangleShape_setSize(assets->background.rectangle,
-        sfView_getSize(view));
-    if (!assets->background.texture && _DEBUG)
-        my_printf("[WARN] Background texture not loaded.\n");
-    sfRectangleShape_setTexture(assets->background.rectangle,
-        assets->background.texture, sfTrue);
-    sfRenderWindow_drawRectangleShape(assets->window,
-        assets->background.rectangle, NULL);
-}
-
-static int display_help(void)
-{
-    my_printf("%s [%s]\n", GAME_NAME, GAME_AUTHOR);
-    my_printf("%s\n", GAME_DESCRIPTION);
-    return 0;
-}
-
-// typedef struct content_s {
-//     sfTexture *texture;
-//     sfRectangleShape *rectangle;
-//     sfVector2f position;
-//     sfVector2f size;
-//     float angle;
-// } content_t;
-static void init(assets_t *assets)
-{
-    assets->window = create_window(800, 600, "My Hunter");
+    assets->window = create_window(BASE_WINDOW_X, BASE_WINDOW_Y, "My Hunter");
     assets->background.rectangle = sfRectangleShape_create();
     assets->background.texture = sfTexture_createFromFile(
-        "images/background.jpg", NULL);
-    assets->play_button.text = sfText_create();
-    sfText_setString(assets->play_button.text, "Play");
-    assets->play_button.color = sfColor_fromRGBA(
-        255, 255, 255, 255);
-    assets->play_button.rect.rectangle = sfRectangleShape_create();
-    assets->play_button.rect.size.x = 200;
-    assets->play_button.rect.size.y = 60;
+        "assets/images/background.jpg", NULL);
+    assets->new_button.rectangle = sfRectangleShape_create();
+    assets->new_button.size = (sfVector2f) {200, 60};
+    assets->new_button.position = (sfVector2f) {500, 500};
+    sfRectangleShape_setFillColor(assets->new_button.rectangle, sfYellow);
+    sfRectangleShape_setSize(assets->new_button.rectangle,
+        assets->new_button.size);
+    sfRectangleShape_setPosition(assets->new_button.rectangle,
+        assets->new_button.position);
+    assets->font = sfFont_createFromFile(
+        "assets/fonts/Montserrat-Regular.ttf");
+    assets->play_btn = sfText_create();
+    sfText_setFont(assets->play_btn, assets->font);
+    sfText_setString(assets->play_btn, "Play");
+    sfText_setColor(assets->play_btn, sfBlack);
 }
 
-static void cleanup(assets_t *assets)
+// static void cleanup(assets_t *assets)
+// {
+//     sfRectangleShape_destroy(assets->background.rectangle);
+//     sfTexture_destroy(assets->background.texture);
+//     sfRenderWindow_destroy(assets->window);
+// }
+sfVector2f calculate_center(sfVector2f *view_size,
+    sfVector2f *rectangle_size)
 {
-    sfRectangleShape_destroy(assets->background.rectangle);
-    sfTexture_destroy(assets->background.texture);
-    sfRenderWindow_destroy(assets->window);
-    sfRenderWindow_setFramerateLimit(assets->window, MAX_FRAMERATE);
-}
+    sfVector2f new = {0.0, 0.0};
 
-void display_menu(assets_t *assets)
-{
-    sfRenderWindow_drawRectangleShape(assets->window,
-        assets->play_button.rect.rectangle, NULL);
-}
-
-void render_view(int current_view, assets_t *assets)
-{
-    if (current_view == 0) {
-        display_menu(assets);
-    }
+    new.x = ((*view_size).x / 2) - ((*rectangle_size).x / 2);
+    new.y = ((*view_size).y / 2) - ((*rectangle_size).y / 2);
+    return new;
 }
 
 int main(int argc, char **argv)
@@ -153,14 +60,10 @@ int main(int argc, char **argv)
     if (assets.window == NULL)
         return 84;
     while (sfRenderWindow_isOpen(assets.window)) {
-        printf("Turn\n");
+        sfRenderWindow_clear(assets.window, sfBlack);
         manage_events(assets.window, &event, &keys);
         display_background(&assets);
         render_view(current_view, &assets);
-        sfRenderWindow_display(assets.window);
     }
-    cleanup(&assets);
     return 0;
 }
-
-// sfRenderWindow_clear(assets.window, sfBlack);
