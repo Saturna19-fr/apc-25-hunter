@@ -22,49 +22,48 @@
     #define _DEBUG 1
     #define BASE_WINDOW_X 1920
     #define BASE_WINDOW_Y 1080
+    #define SPRITE_TEXTURE_SIZE 110
+    #define SUCCESS 0
+    #define FAILURE 84
 
-typedef struct frames_keys_s {
-    bool z;
-    bool q;
-    bool s;
-    bool d;
-} frames_keys_t;
+typedef struct sprites_s {
+    sfSprite *duck;
+    sfVector2f position;
+} sprites_t;
 
-typedef struct textured_rect_s {
+typedef struct background_s {
     sfTexture *texture;
     sfRectangleShape *rectangle;
-    sfVector2f size;
-    sfVector2f position;
-    float angle;
-} textured_rect_t;
+} background_t;
 
-
-typedef struct assets_s {
-    sfFont *font;
+typedef struct window_s {
     sfRenderWindow *window;
-    textured_rect_t background;
-    textured_rect_t new_button;
-    sfText *play_btn;
-    float heartbeat;
-} assets_t;
+    sfVector2f size;
+} window_t;
+
+typedef struct components {
+    window_t window;
+    sprites_t *sprites;
+    background_t background;
+} components_t;
+
 /***          / FUNCTIONS \        ***/
+/*
+** Create Functions
+*/
+
+sfRenderWindow *create_window(int x, int y, char *title);
+
+/*
+** Create Functions
+*/
+
+int display_help(void);
+
 /*
 ** Display Functions
 */
 
-void init(assets_t *assets);
-void display_menu(assets_t *assets);
-void display_background(assets_t *assets);
-int display_help(void);
-void render_view(int current_view, assets_t *assets);
-sfRenderWindow *create_window(int x, int y, char *title);
-void handlekeys(sfEvent *event, frames_keys_t *keys);
-void handle_resize(sfRenderWindow *window);
-void manage_events(sfRenderWindow *window,
-    sfEvent *event, frames_keys_t *keys);
-
-sfVector2f calculate_center(sfVector2f *view_size,
-    sfVector2f *rectangle_size);
-
+int display_background(window_t *window, background_t *background);
 
 #endif /* !MY_HUNTER_ */

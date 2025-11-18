@@ -17,25 +17,6 @@ sfRenderWindow *create_window(int x, int y, char *title)
     return NULL;
 }
 
-void handlekeys(sfEvent *event, frames_keys_t *keys)
-{
-    switch (event->key.code) {
-        case sfKeyZ:
-            keys->z = true;
-            break;
-        case sfKeyQ:
-            keys->q = true;
-            break;
-        case sfKeyS:
-            keys->s = true;
-            break;
-        case sfKeyD:
-            keys->d = true;
-            break;
-        default:
-            break;
-    }
-}
 
 void handle_resize(sfRenderWindow *window)
 {
@@ -55,15 +36,15 @@ void handle_resize(sfRenderWindow *window)
     }
 }
 
-void manage_events(sfRenderWindow *window,
-    sfEvent *event, frames_keys_t *keys)
-{
-    while (sfRenderWindow_pollEvent(window, event)) {
-        if ((*event).type == sfEvtClosed)
-            sfRenderWindow_close(window);
-        if ((*event).type == sfEvtKeyPressed)
-            handlekeys(event, keys);
-        if ((*event).type == sfEvtResized)
-            handle_resize(window);
-    }
-}
+// void manage_events(sfRenderWindow *window,
+//     sfEvent *event, frames_keys_t *keys, assets_t *assets)
+// {
+//     while (sfRenderWindow_pollEvent(window, event)) {
+//         if ((*event).type == sfEvtClosed)
+//             sfRenderWindow_close(window);
+//         if ((*event).type == sfEvtKeyPressed)
+//             handlekeys(event, keys, assets);
+//         if ((*event).type == sfEvtResized)
+//             handle_resize(window);
+//     }
+// }
