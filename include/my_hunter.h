@@ -11,6 +11,9 @@
     #include <SFML/Audio.h>
     #include <stdlib.h>
     #include <stddef.h>
+    #include <string.h>
+    #include <SFML/System/Clock.h>
+    #include <SFML/Window.h>
     #include "my.h"
 
 
@@ -19,52 +22,70 @@
     #define GAME_NAME "MyHunter"
     #define GAME_DESCRIPTION "This game is in progress."
     #define MAX_FRAMERATE 60
-    #define _DEBUG 1
-    #define BASE_WINDOW_X 1920
-    #define BASE_WINDOW_Y 1080
+    #define DEFAULT_WIDTH 1920
+    #define DEFAULT_HEIGHT 1080
+    #define MIN_WIDTH 800
+    #define MIN_HEIGHT 600
+    #define SPRITE_TEXTURE_SIZE 110
+    #define SUCCESS 0
+    #define FAILURE 84
+    #define MAX_SPRITE_DISPLAYED 12
 
-typedef struct frames_keys_s {
-    bool z;
-    bool q;
-    bool s;
-    bool d;
-} frames_keys_t;
+typedef struct sprite_s {
+    bool initialized;
+    bool is_flying;
+    sfSprite *duck;
+    int texture_face;
+    sfIntRect rect;
+    sfVector2f position;
+} sprite_t;
 
-typedef struct textured_rect_s {
+typedef struct background_s {
     sfTexture *texture;
     sfRectangleShape *rectangle;
-    sfVector2f size;
-    sfVector2f position;
-    float angle;
-} textured_rect_t;
+} background_t;
 
-
-typedef struct assets_s {
-    sfFont *font;
+typedef struct window_s {
     sfRenderWindow *window;
-    textured_rect_t background;
-    textured_rect_t new_button;
-    sfText *play_btn;
-    float heartbeat;
-} assets_t;
+    sfVector2f size;
+} window_t;
+
+typedef struct components {
+    window_t window;
+    sprite_t *sprites;
+    background_t background;
+    sfEvent event;
+    sfClock *clock;
+} components_t;
+
 /***          / FUNCTIONS \        ***/
+/*
+** Create Functions
+*/
+
+sfRenderWindow *create_window(int x, int y, char *title);
+int create_background(background_t *background);
+int create_sprite(sprite_t **sprites);
+void initialize_sprite(components_t *components, int sprite);
 /*
 ** Display Functions
 */
 
-void init(assets_t *assets);
-void display_menu(assets_t *assets);
-void display_background(assets_t *assets);
 int display_help(void);
-void render_view(int current_view, assets_t *assets);
-sfRenderWindow *create_window(int x, int y, char *title);
-void handlekeys(sfEvent *event, frames_keys_t *keys);
-void handle_resize(sfRenderWindow *window);
+int display_background(window_t *window, background_t *background);
+
+/*
+** Manage functions
+*/
 void manage_events(sfRenderWindow *window,
-    sfEvent *event, frames_keys_t *keys);
+    sfEvent *event);
+int gameloop(components_t *components, int *score, int nb_sprt);
+int init_game(void);
+void handle_resize(sfRenderWindow *window);
 
-sfVector2f calculate_center(sfVector2f *view_size,
-    sfVector2f *rectangle_size);
 
+int my_random(int min, int max);
+void cleanup(components_t *components);
+void reinit_based_on_score(components_t *components, int score);
 
 #endif /* !MY_HUNTER_ */

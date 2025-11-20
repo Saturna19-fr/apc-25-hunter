@@ -9,13 +9,18 @@ NAME = 	my_hunter
 
 SRCS = 	src/main.c		\
 		src/display.c	\
-		src/core.c
+		src/core.c		\
+		src/instances.c	\
+		src/utils.c		\
+		src/cleanup.c
 
 CC = epiclang
 
 CFLAGS = -Werror -Wall -Wextra
 
-CPPFLAGS = -I./include -L./lib -lmy -lcsfml-graphics
+CPPFLAGS = -I./include -L./lib
+
+LIBS = -lmy -lcsfml-system -lcsfml-graphics -lcsfml-window
 # CPPFLAGS = -I./include -L./lib -lmy
 
 all: $(NAME)
@@ -24,7 +29,11 @@ build_my_lib:
 	cd lib/my && make && cp include/*.h ../../include && cp libmy.a ..
 
 $(NAME): build_my_lib
-	$(CC) $(SRCS) -o $(NAME) $(CFLAGS) $(CPPFLAGS)
+	$(CC) $(SRCS) -o $(NAME) $(CFLAGS) $(CPPFLAGS) $(LIBS)
+
+
+debug: build_my_lib
+	$(CC) $(SRCS) -o $(NAME) $(CFLAGS) $(CPPFLAGS) $(LIBS) -g3
 
 clean:
 	rm -f \#*\#
