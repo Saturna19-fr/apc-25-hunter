@@ -45,7 +45,7 @@ int my_str_isprintable(char const *str);
 int my_str_isupper(char const *str);
 char *my_strcapitalize(char *str);
 char *my_strncat(char *dest, char const *src, int nb);
-
+void my_memcpy(void *dest, void *src, size_t n);
 
 char **create_char_array_of_size(int size);
 int count_words_valid(char *str);

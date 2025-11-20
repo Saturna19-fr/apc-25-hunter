@@ -46,7 +46,8 @@ SRC	 = 	my_compute_power_rec.c \
 		flag_o.c \
 		flag_x_x.c \
 		flag_percent.c \
-		flag_u.c
+		flag_u.c \
+		my_memcpy.c
 
 
 OBJ = $(SRC:.c=.o)
