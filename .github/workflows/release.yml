@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [event/apc-25-nov]
+    branches: [main, event/apc-25-nov]
   workflow_dispatch:
 
 permissions:

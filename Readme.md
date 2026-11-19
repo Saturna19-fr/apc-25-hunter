@@ -6,7 +6,7 @@ dure 60 secondes.
 
 ## Télécharger le jeu
 
-Chaque push sur `event/apc-25-nov` publie une archive prête à jouer, avec les
+Chaque push sur `main` publie une archive prête à jouer, avec les
 bibliothèques incluses, dans la
 [release `latest`](../../releases/tag/latest) : Linux x86_64 et macOS Apple
 Silicon. Décompresse l'archive et lis `LISEZMOI.txt`.
