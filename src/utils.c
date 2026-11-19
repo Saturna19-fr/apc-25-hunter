@@ -1,39 +1,61 @@
 /*
-** EPITECH PROJECT, 2025
+** EPITECH PROJECT, 2026
 ** G-MUL-100-PAR-1-1-myhunter-40
 ** File description:
-** utils
+** utils.c : petites fonctions de chaines et de nombres
 */
-#include "../include/my_hunter.h"
 
-void handle_resize(sfRenderWindow *window)
+#include "game.h"
+
+void nb_to_str(int nb, char *out)
 {
-    sfVector2u size = sfRenderWindow_getSize(window);
-    bool edited = false;
+    char digits[NB_LEN];
+    unsigned int value = nb < 0 ? -(unsigned int)nb : (unsigned int)nb;
+    int len = 0;
+    int pos = 0;
 
-    if (size.x < MIN_WIDTH) {
-        size.x = MIN_WIDTH;
-        edited = true;
+    if (nb < 0) {
+        out[pos] = '-';
+        pos++;
     }
-    if (size.y < MIN_HEIGHT) {
-        size.y = MIN_HEIGHT;
-        edited = true;
+    for (; value > 0 || len == 0; value /= BASE_TEN) {
+        digits[len] = (char)('0' + value % BASE_TEN);
+        len++;
     }
-    if (edited) {
-        sfRenderWindow_setSize(window, size);
+    for (; len > 0; len--) {
+        out[pos] = digits[len - 1];
+        pos++;
     }
+    out[pos] = '\0';
 }
 
-int my_random(int min, int max)
+int str_to_nb(const char *str)
 {
-    return min + rand() / (RAND_MAX / (max - min + 1) + 1);
+    int value = 0;
+
+    for (int i = 0; str[i] >= '0' && str[i] <= '9'; i++) {
+        value = value * BASE_TEN + (str[i] - '0');
+        if (value > NET_PORT_MAX)
+            return -1;
+    }
+    return value;
 }
 
-void reinit_based_on_score(components_t *components, int score)
+void str_copy(char *dest, const char *src, int max)
 {
-    for (int i = 0; i <= score; i++) {
-        if (!components->sprites[i].initialized) {
-            initialize_sprite(components, i);
-        }
+    int i = 0;
+
+    for (; i < max - 1 && src[i] != '\0'; i++)
+        dest[i] = src[i];
+    dest[i] = '\0';
+}
+
+int str_append(char *dest, int pos, const char *src)
+{
+    for (int i = 0; src[i] != '\0'; i++) {
+        dest[pos] = src[i];
+        pos++;
     }
+    dest[pos] = '\0';
+    return pos;
 }

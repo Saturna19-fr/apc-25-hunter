@@ -1,0 +1,95 @@
+name: Release
+
+on:
+  push:
+    branches: [event/apc-25-nov]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: true
+
+env:
+  SFML_VERSION: 3.0.2
+  CSFML_VERSION: 3.0.0
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Paquets de build
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            clang cmake git patchelf \
+            libx11-dev libxrandr-dev libxcursor-dev libxi-dev \
+            libudev-dev libgl1-mesa-dev libegl1-mesa-dev libfreetype-dev
+
+      - name: Cache SFML et CSFML
+        id: csfml
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.csfml
+          key: csfml-${{ runner.os }}-${{ runner.arch }}-${{ env.SFML_VERSION }}-${{ env.CSFML_VERSION }}-${{ hashFiles('scripts/build-csfml.sh') }}
+
+      - name: Compiler SFML et CSFML
+        if: steps.csfml.outputs.cache-hit != 'true'
+        run: scripts/build-csfml.sh "$GITHUB_WORKSPACE/.csfml"
+
+      - name: Compiler le jeu
+        run: make CSFML_DIR="$GITHUB_WORKSPACE/.csfml"
+
+      - name: Empaqueter
+        run: CSFML_DIR="$GITHUB_WORKSPACE/.csfml" scripts/package.sh linux
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Paquets de build
+        run: brew install csfml dylibbundler
+
+      - name: Compiler le jeu
+        run: make
+
+      - name: Empaqueter
+        run: scripts/package.sh macos
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  release:
+    needs: [linux, macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Publier la release latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release delete latest --cleanup-tag --yes || true
+          gh release create latest dist/*.tar.gz \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --title "My Hunter (dernier build)" \
+            --notes "Build automatique du commit $GITHUB_SHA. Décompresse l'archive de ton système et lis LISEZMOI.txt."

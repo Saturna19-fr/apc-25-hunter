@@ -5,43 +5,74 @@
 ## Makefile
 ##
 
-NAME = 	my_hunter
+NAME	=	my_hunter
 
-SRCS = 	src/main.c		\
-		src/display.c	\
-		src/core.c		\
-		src/instances.c	\
-		src/utils.c		\
-		src/cleanup.c
+SRCS	=	src/main.c			\
+			src/app.c			\
+			src/loop.c			\
+			src/window.c		\
+			src/session.c		\
+			src/draw.c			\
+			src/ui_widgets.c	\
+			src/scene_menu.c	\
+			src/scene_room.c	\
+			src/scene_game.c	\
+			src/world.c			\
+			src/ducks.c			\
+			src/net_common.c	\
+			src/net_host.c		\
+			src/net_client.c	\
+			src/net_packet.c	\
+			src/ifaces.c		\
+			src/utils.c
 
-CC = epiclang
+OBJS	=	$(SRCS:.c=.o)
+DEPS	=	$(SRCS:.c=.d)
 
-CFLAGS = -Werror -Wall -Wextra
+CC		?=	epiclang
 
-CPPFLAGS = -I./include -L./lib
+CFLAGS	=	-Werror -Wall -Wextra
+CPPFLAGS=	-I./include -MMD -MP
+LDFLAGS	=	-L./lib
+LDLIBS	=	-lmy -lcsfml-network -lcsfml-graphics -lcsfml-window	\
+			-lcsfml-system -lm
 
-LIBS = -lmy -lcsfml-system -lcsfml-graphics -lcsfml-window
-# CPPFLAGS = -I./include -L./lib -lmy
+ifeq ($(shell uname -s),Darwin)
+CSFML_DIR	?=	$(shell brew --prefix csfml)
+endif
+
+ifdef CSFML_DIR
+CPPFLAGS	+=	-isystem $(CSFML_DIR)/include
+LDFLAGS		+=	-L$(CSFML_DIR)/lib -Wl,-rpath,$(CSFML_DIR)/lib
+endif
 
 all: $(NAME)
 
-build_my_lib:
-	cd lib/my && make && cp include/*.h ../../include && cp libmy.a ..
+lib/libmy.a:
+	$(MAKE) -C lib/my
+	cp lib/my/include/*.h include/
+	cp lib/my/libmy.a lib/
 
-$(NAME): build_my_lib
-	$(CC) $(SRCS) -o $(NAME) $(CFLAGS) $(CPPFLAGS) $(LIBS)
+$(OBJS): | lib/libmy.a
 
+$(NAME): $(OBJS)
+	$(CC) $(OBJS) -o $(NAME) $(LDFLAGS) $(LDLIBS)
 
-debug: build_my_lib
-	$(CC) $(SRCS) -o $(NAME) $(CFLAGS) $(CPPFLAGS) $(LIBS) -g3
+debug: CFLAGS += -g3
+debug: re
 
 clean:
+	rm -f $(OBJS) $(DEPS)
 	rm -f \#*\#
-	rm -f include/my.h
 
 fclean: clean
 	rm -f $(NAME)
-	rm -f lib/libmy.a
-	cd lib/my && make fclean
+	rm -f lib/libmy.a include/my.h include/my_macro_abs.h
+	$(MAKE) -C lib/my fclean
 
-re: fclean $(NAME)
+re: fclean
+	$(MAKE) all
+
+-include $(DEPS)
+
+.PHONY: all debug clean fclean re

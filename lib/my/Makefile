@@ -64,7 +64,7 @@ $(NAME): $(OBJ)
 	make clean
 
 clean:
-	rm rm -f $(OBJ)
+	rm -f $(OBJ)
 
 fclean:
 	make clean
